@@ -54,8 +54,3 @@ app.listen(port, ()=>{
     console.log(`mongo server is running on port ${port}`);
 })
 
-
-
-
-//smshahin12341
-// U6lBMbej3b4xFHUH
