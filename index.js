@@ -1,6 +1,6 @@
 const express=require("express");
 const app=express();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port=process.env.PORT || 3000;
 const cors=require('cors');
 
@@ -42,6 +42,15 @@ async function run() {
         res.send(result)  // this server sending user info to database
         
     })
+
+    app.delete('/users/:id', async(req, res)=>{
+      const id=req.params.id;
+      console.log('Please delete this id:', id);
+      const query={_id: new ObjectId(id)};   // this _id is a title of user
+      const result=await usersCollection.deleteOne(query)
+      res.send(result)
+    })
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
