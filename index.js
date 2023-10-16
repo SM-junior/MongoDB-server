@@ -28,11 +28,18 @@ async function run() {
     const database = client.db("usersDB");
     const usersCollection = database.collection("users");
 
+    app.get('/users', async(req,res)=>{
+        const cursor=usersCollection.find();
+        const result=await cursor.toArray();
+        res.send(result) // this server find the user from database and sent it to UI
+
+    })
+
     app.post('/users', async(req, res)=>{
         const user=req.body;
         console.log(user);
         const result = await usersCollection.insertOne(user);
-        res.send(result)
+        res.send(result)  // this server sending user info to database
         
     })
     // Send a ping to confirm a successful connection
