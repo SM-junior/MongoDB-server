@@ -1,8 +1,8 @@
-const express=require("express");
-const app=express();
+const express = require("express");
+const app = express();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const port=process.env.PORT || 3000;
-const cors=require('cors');
+const port = process.env.PORT || 3000;
+const cors = require('cors');
 
 //this two things are middleware
 app.use(cors());
@@ -18,7 +18,7 @@ const client = new MongoClient(uri, {
     strict: true,
     deprecationErrors: true,
   }
-}); 
+});
 
 async function run() {
   try {
@@ -28,26 +28,51 @@ async function run() {
     const database = client.db("usersDB");
     const usersCollection = database.collection("users");
 
-    app.get('/users', async(req,res)=>{
-        const cursor=usersCollection.find();
-        const result=await cursor.toArray();
-        res.send(result) // this server find the user from database and sent it to UI
+    app.get('/users', async (req, res) => {
+      const cursor = usersCollection.find();
+      const result = await cursor.toArray();
+      res.send(result) // this server find the user from database and sent it to UI
 
     })
 
-    app.post('/users', async(req, res)=>{
-        const user=req.body;
-        console.log(user);
-        const result = await usersCollection.insertOne(user);
-        res.send(result)  // this server sending user info to database
-        
+    app.get('/users/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await usersCollection.findOne(query);
+      res.send(result)
     })
 
-    app.delete('/users/:id', async(req, res)=>{
+    app.put('/users/:id', async(req,res)=>{
       const id=req.params.id;
+      const user=req.body;
+      console.log(user);
+      const filter={_id: new ObjectId(id)};
+      const option={upsert:true};
+
+      const updateUser={
+        $set:{
+          name: user.name,
+          email:user.email
+        }
+      };
+
+      const result=await usersCollection.updateOne(filter, updateUser, option);
+      res.send(result)
+    })
+
+    app.post('/users', async (req, res) => {
+      const user = req.body;
+      console.log(user);
+      const result = await usersCollection.insertOne(user);
+      res.send(result)  // this server sending user info to database
+
+    })
+
+    app.delete('/users/:id', async (req, res) => {
+      const id = req.params.id;
       console.log('Please delete this id:', id);
-      const query={_id: new ObjectId(id)};   // this _id is a title of user
-      const result=await usersCollection.deleteOne(query)
+      const query = { _id: new ObjectId(id) };   // this _id is a title of user
+      const result = await usersCollection.deleteOne(query)
       res.send(result)
     })
 
@@ -62,11 +87,11 @@ async function run() {
 run().catch(console.dir);
 
 
-app.get('/',(req,res)=>{
-    res.send('mongo is running')
+app.get('/', (req, res) => {
+  res.send('mongo is running')
 })
 
-app.listen(port, ()=>{
-    console.log(`mongo server is running on port ${port}`);
+app.listen(port, () => {
+  console.log(`mongo server is running on port ${port}`);
 })
 
